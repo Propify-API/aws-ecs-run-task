@@ -1,17 +1,10 @@
-const core = require("@actions/core");
-const {
-        ECS
-      } = require("@aws-sdk/client-ecs");
+import * as core from "@actions/core";
+import { ECS } from "@aws-sdk/client-ecs";
+import { setTimeout } from "node:timers/promises";
 
 const ecs = new ECS();
 
-function wait6Seconds() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve('resolved');
-    }, 6000);
-  });
-}
+const POLL_INTERVAL_MS = 6000;
 
   
 
@@ -95,7 +88,7 @@ const main = async () => {
         break;
       }
   
-      await wait6Seconds();
+      await setTimeout(POLL_INTERVAL_MS);
     }
 
 
@@ -119,7 +112,7 @@ const main = async () => {
       core.info("Exit code of important container was 0.  Success!");
       core.setOutput("status", "success");
     } else {
-      core.info("Exit code of important container was " + exitCode);
+      core.info("Exit code of important container was " + targetExitCode);
       core.setFailed(task.tasks[0].stoppedReason);
 
       const taskHash = taskArn.split("/").pop();
